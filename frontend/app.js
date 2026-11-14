@@ -62,12 +62,12 @@ M.innerHTML=`<div class="wrap"><h2>Shaxsiy kabinet</h2><div class="stats"><div c
 $('#pf').onsubmit=e=>{e.preventDefault();act(async()=>{await api('/worker/me','PUT',fd(e));toast('Saqlandi')})}}
 
 async function vAdmin(){if(!need('admin'))return;
-const tabs=[['stats','Statistika'],['orders','Buyurtmalar'],['workers','Ustalar'],['clients','Mijozlar'],['services','Xizmatlar']];
+const tabs=[['stats','Statistika'],['orders','Buyurtmalar'],['workers','Xizmat qoshish'],['clients','Mijozlar'],['services','Xizmatlar']];
 M.innerHTML=`<div class="wrap"><h2>Admin panel</h2><div class="tabs">${tabs.map(([k,t])=>`<button class="${k==tab?'on':''}" data-t="${k}">${t}</button>`).join('')}</div><div id="tb"></div></div>`;
 const tb=$('#tb'),del=(p)=>`<button class="btn sm o" data-del="${p}">O'chirish</button>`;
 if(tab==='stats'){const[s,ws]=await Promise.all([api('/admin/stats'),api('/admin/workers')]);
-const c=[['clients','Mijozlar'],['workers','Ustalar'],['services','Xizmatlar'],['orders','Buyurtmalar'],['new_orders','Yangi buyurtmalar'],['done_orders','Bajarilgan'],['views',"Profil ko'rishlar"],['rating',"O'rtacha reyting"]];
-tb.innerHTML=`<div class="stats">${c.map(([k,t])=>`<div class="card"><b>${s[k]}</b><span>${t}</span></div>`).join('')}</div><h3 style="margin-bottom:10px">Ustalar reytingi va ko'rishlari</h3>`+tbl(['Usta','Xizmat',"Ko'rishlar",'Reyting','Izohlar','Buyurtmalar'],[...ws].sort((a,b)=>b.views-a.views).map(w=>[esc(w.name),esc(w.service||''),w.views,w.rating,w.review_count,w.orders]))}
+const c=[['clients','Mijozlar'],['workers','Xizmat qoshish'],['services','Xizmatlar'],['orders','Buyurtmalar'],['new_orders','Yangi buyurtmalar'],['done_orders','Bajarilgan'],['views',"Profil ko'rishlar"],['rating',"O'rtacha reyting"]];
+tb.innerHTML=`<div class="stats">${c.map(([k,t])=>`<div class="card"><b>${s[k]}</b><span>${t}</span></div>`).join('')}</div><h3 style="margin-bottom:10px">Xizmatlar reytingi va ko'rishlari</h3>`+tbl(['Xizmatlar','Xizmat',"Ko'rishlar",'Reyting','Izohlar','Buyurtmalar'],[...ws].sort((a,b)=>b.views-a.views).map(w=>[esc(w.name),esc(w.service||''),w.views,w.rating,w.review_count,w.orders]))}
 if(tab==='orders'){const os=await api('/orders');tb.innerHTML=os.map(o=>oc(o,'admin')).join('')||empty("Buyurtmalar yo'q")}
 if(tab==='workers'){const[sv,ws]=await Promise.all([api('/services'),api('/admin/workers')]);
 tb.innerHTML=`<form id="aw" class="card"><h3 style="margin-bottom:12px">Yangi usta qo'shish</h3><div class="fg"><input name="name" placeholder="Ism familiya" required><input name="phone" placeholder="Login (telefon)" required><input name="password" placeholder="Parol (kamida 6 belgi)" minlength="6" required><select name="service_id" required><option value="">Xizmat turi</option>${sv.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('')}</select><input name="city" placeholder="Hudud"><input name="experience" type="number" min="0" placeholder="Tajriba (yil)"><input name="price" type="number" min="0" placeholder="Narx (so'm)"><input name="bio" placeholder="Qisqacha ma'lumot"></div><button class="btn">Usta qo'shish</button></form>`+
