@@ -12,7 +12,7 @@ const empty=t=>`<p class="empty">${t}</p>`;
 const tbl=(h,r)=>`<div class="tw"><table><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>${r.map(x=>`<tr>${x.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table></div>`;
 const need=role=>me?.role===role||!(location.hash='#/login');
 
-function nav(){const l=[['','Bosh sahifa'],['workers','Ustalar']];
+function nav(){const l=[['','Bosh sahifa'],['workers','Xizmatlar']];
 if(me?.role==='client')l.push(['orders','Buyurtmalarim']);if(me?.role==='worker')l.push(['cabinet','Kabinet']);if(me?.role==='admin')l.push(['admin','Admin panel']);
 $('#links').innerHTML=l.map(([h,t])=>`<a href="#/${h}">${t}</a>`).join('')+(me?`<a href="#" id="out">Chiqish (${esc(me.name)})</a>`:`<a href="#/login">Kirish</a><a class="btn" href="#/register">Ro'yxatdan o'tish</a>`)}
 const card=w=>`<a class="card wk" href="#/worker/${w.id}"><div class="av">${esc(w.name[0])}</div><div><h3>${esc(w.name)}</h3><p class="mut">${esc(w.service||'')}${w.city?', '+esc(w.city):''}</p><p><span class="st">${stars(w.rating)}</span> ${w.rating} (${w.review_count})</p><p class="pr">${w.price?fmt(w.price)+" so'm dan":'Narx kelishiladi'}</p></div></a>`;
@@ -22,19 +22,19 @@ const v={'':vHome,workers:vWorkers,worker:vWorker,login:vLogin,register:vReg,ord
 try{await v(id,new URLSearchParams(qs))}catch(e){M.innerHTML=`<div class="wrap">${empty(esc(e.message))}</div>`}}
 
 async function vHome(){const[sv,ws]=await Promise.all([api('/services'),api('/workers')]);
-M.innerHTML=`<section class="hero"><div class="wrap"><h1>Mahallangizdagi ishonchli ustalar bir joyda</h1><p>Elektrik, jatkichi, malyar, moto ustasi va kunlik ishchilar. Ustani tanlang, buyurtma bering, natijaga izoh qoldiring.</p>
-<form id="sf" class="search"><input name="q" placeholder="Usta yoki xizmat nomi" aria-label="Qidiruv"><button class="btn">Qidirish</button></form>
+M.innerHTML=`<section class="hero"><div class="wrap"><h1>Qishlog'imizdagi xizmatlar bir joyda</h1><p>,Har hil hizmatlardan foydalaning va xizmat egasiga izoh qoldirib uni baholang.</p>
+<form id="sf" class="search"><input name="q" placeholder="o'zingizga kerak xizmat nomi" aria-label="Qidiruv"><button class="btn">Qidirish</button></form>
 <div class="chips">${sv.map(s=>`<a href="#/workers?s=${s.id}">${esc(s.name)}</a>`).join('')}</div></div></section>
-<section class="wrap"><h2>Eng yaxshi ustalar</h2><div class="grid">${ws.slice(0,6).map(card).join('')||empty("Hozircha ustalar yo'q")}</div></section>`;
+<section class="wrap"><div class="grid">${ws.slice(0,6).map(card).join('')||empty("Hozircha hizmatlar yo'q")}</div></section>`;
 $('#sf').onsubmit=e=>{e.preventDefault();location.hash='#/workers?q='+encodeURIComponent(e.target.q.value)}}
 
 async function vWorkers(_,q){const sv=await api('/services');
-M.innerHTML=`<div class="wrap"><h2>Ustalar</h2><form id="ff" class="filter"><select name="s"><option value="">Barcha xizmatlar</option>${sv.map(s=>`<option value="${s.id}" ${q.get('s')==s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select><input name="q" value="${esc(q.get('q')||'')}" placeholder="Ism yoki xizmat"><button class="btn">Topish</button></form><div id="res" class="grid"></div></div>`;
-const load=async()=>{const ws=await api('/workers?'+new URLSearchParams(new FormData($('#ff'))));$('#res').innerHTML=ws.map(card).join('')||empty('Usta topilmadi')};
+M.innerHTML=`<div class="wrap"><h2>Xizmatlar</h2><form id="ff" class="filter"><select name="s"><option value="">Barcha xizmatlar</option>${sv.map(s=>`<option value="${s.id}" ${q.get('s')==s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select><input name="q" value="${esc(q.get('q')||'')}" placeholder="Ism yoki xizmat"><button class="btn">Topish</button></form><div id="res" class="grid"></div></div>`;
+const load=async()=>{const ws=await api('/workers?'+new URLSearchParams(new FormData($('#ff'))));$('#res').innerHTML=ws.map(card).join('')||empty('Xizmat topilmadi')};
 $('#ff').onsubmit=e=>{e.preventDefault();act(load)};await load()}
 
 async function vWorker(id){const w=await api('/workers/'+id);
-const form=me?.role==='client'?`<h3>Buyurtma berish</h3><form id="of" class="fg1"><input name="address" placeholder="Manzil" required><input name="date" type="date"><textarea name="note" rows="3" placeholder="Ish haqida qisqacha"></textarea><button class="btn">Buyurtma yuborish</button></form>`:me?`<p class="mut">Buyurtma berish faqat mijoz hisobi uchun.</p>`:`<p>Buyurtma berish uchun <a class="pr" href="#/login">tizimga kiring</a> yoki <a class="pr" href="#/register">ro'yxatdan o'ting</a>.</p>`;
+const form=me?.role==='client'?`<h3>Xizmatni korish</h3><form id="of" class="fg1"><input name="address" placeholder="Manzil" required><input name="date" type="date"><textarea name="note" rows="3" placeholder="Xizmat haqida qisqacha"></textarea><button class="btn">Buyurtma yuborish</button></form>`:me?`<p class="mut">Buyurtma berish faqat mijoz hisobi uchun.</p>`:`<p>Buyurtma berish uchun <a class="pr" href="#/login">tizimga kiring</a> yoki <a class="pr" href="#/register">ro'yxatdan o'ting</a>.</p>`;
 M.innerHTML=`<div class="wrap two"><div class="card"><div class="av big">${esc(w.name[0])}</div><h1 style="font-size:30px">${esc(w.name)}</h1><p class="mut">${esc(w.service||'')}${w.city?', '+esc(w.city):''}</p><p><span class="st">${stars(w.rating)}</span> ${w.rating} (${w.reviews.length} izoh)</p>
 <ul class="facts"><li>Tajriba: ${w.experience} yil</li><li>Narx: ${w.price?fmt(w.price)+" so'm dan":'kelishiladi'}</li><li>Profil ko'rishlar: ${w.views}</li></ul><p>${esc(w.bio||"Ma'lumot kiritilmagan")}</p></div>
 <div><div class="card">${form}</div><h2>Izohlar</h2>${w.reviews.map(r=>`<div class="card"><b>${esc(r.client_name)}</b> <span class="st">${stars(r.rating)}</span><p>${esc(r.comment)}</p></div>`).join('')||empty("Hali izoh yo'q")}</div></div>`;
